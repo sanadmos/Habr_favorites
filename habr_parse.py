@@ -43,3 +43,4 @@ for page in pages:
 ws.column_dimensions["A"].width = 130
 ws.column_dimensions["B"].width = 30
 xl.save("habr.com.xlsx")
+xl.close()
