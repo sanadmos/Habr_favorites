@@ -34,9 +34,12 @@ for page in pages:
             date = article.xpath('.//span[@class="post__time"]')[0].text # время публикации поста
             title = article.xpath('.//h2')[0][0].text # название поста
             link = article.xpath('.//a/@href')[1] # ссылка на пост
-            ws.cell(row=row, column=1, value=title)
+            ws.cell(row=row, column=1).style = "Hyperlink"
+            ws.cell(row=row, column=1).value = title
+            ws.cell(row=row, column=1).hyperlink = link
             ws.cell(row=row, column=2, value=date)
-            ws.cell(row=row, column=3, value=link)
         except IndexError:
             continue
+ws.column_dimensions["A"].width = 130
+ws.column_dimensions["B"].width = 30
 xl.save("habr.com.xlsx")
