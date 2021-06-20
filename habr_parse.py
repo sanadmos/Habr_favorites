@@ -15,7 +15,6 @@ page = requests.get(url).content.decode("utf-8")
 pages.append(page)
 tree = html.fromstring(page)
 pgs = len(tree.xpath('//li[@class="toggle-menu__item toggle-menu__item_pagination"]'))
-# pgs = 1
 for num in range(2, pgs+1):
     url = f"https://habr.com/ru/users/admos/favorites/page{num}"
     page = requests.get(url).content.decode("utf-8")
@@ -36,13 +35,14 @@ for page in pages:
             link = article.xpath('.//a/@href')[1] # ссылка на пост
             hubs = article.xpath('.//li[@class="inline-list__item inline-list__item_hub"]') # категория поста
             hubs = [hub[0].text for hub in hubs if "Блог компании" not in hub[0].text]
-            marks = article.xpath('.//span[@class="post__type-label"]') # метка поста
-            marks = [mark.text for mark in marks]
+            types = article.xpath('.//span[@class="post__type-label"]') # тип поста
+            types = [taip.text for taip in types]
+            # if ("IT-эмиграция" in hubs) or ("Карьера в IT-индустрии" in hubs) or ("Образование за рубежом" in hubs):
             ws.cell(row=row, column=1).style = "Hyperlink"
             ws.cell(row=row, column=1).value = title
             ws.cell(row=row, column=1).hyperlink = link
             ws.cell(row=row, column=2, value=", ".join(hubs))
-            ws.cell(row=row, column=3, value=", ".join(marks))
+            ws.cell(row=row, column=3, value=", ".join(types))
             ws.cell(row=row, column=4, value=date)
         except IndexError:
             continue
