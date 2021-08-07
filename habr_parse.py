@@ -10,11 +10,11 @@ from lxml import html
 import openpyxl
 
 pages = []
-url = "https://habr.com/ru/users/admos/favorites"
+url = "https://habr.com/ru/users/admos/favorites/posts"
 page = requests.get(url).content.decode("utf-8")
 pages.append(page)
 tree = html.fromstring(page)
-pgs = len(tree.xpath('//li[@class="toggle-menu__item toggle-menu__item_pagination"]'))
+pgs = len(tree.xpath('.//a/@href[class="tm-pagination__page"]'))
 for num in range(2, pgs+1):
     url = f"https://habr.com/ru/users/admos/favorites/page{num}"
     page = requests.get(url).content.decode("utf-8")
