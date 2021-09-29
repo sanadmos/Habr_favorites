@@ -51,7 +51,7 @@ for num in range(1, num_pages+1):
             hubs = []
         try:
             labels = [label.get_text().strip() for label in labels_obj]
-        except AttributeError:
+        except (AttributeError, TypeError):
             labels = []
         ws.cell(row=row, column=1).style = "Hyperlink"
         ws.cell(row=row, column=1).value = title
