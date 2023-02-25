@@ -28,7 +28,7 @@ def convert_datetime_to_str(datetime_obj):
     """
     return datetime.datetime.strftime(datetime_obj, "%d %B %Y")
 
-username = input("Введите имя пользователя на habr.com\n")
+username = input("Введите ваше имя пользователя на habr.com: ")
 xl = openpyxl.Workbook()
 ws = xl.active
 ws.title = "habr.com"
