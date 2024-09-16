@@ -29,6 +29,10 @@ def convert_datetime_to_str(datetime_obj):
     return datetime.datetime.strftime(datetime_obj, "%d %B %Y")
 
 username = input("Введите ваше имя пользователя на habr.com: ")
+tags = input('Введите через запятую теги статей (например, "IT-эмиграция, Карьера в IT-индустрии, Образование за рубежом"): ')
+if tags:
+    tags = tags.split(',')
+    tags = [tag.strip() for tag in tags]
 xl = openpyxl.Workbook()
 ws = xl.active
 ws.title = "habr.com"
@@ -39,12 +43,11 @@ for num in range(1, num_pages+1):
     page_obj = read_page(username, num)
     articles = page_obj.findAll("article", {"class": "tm-articles-list__item"})
     for article in articles:
-        date = article.find("time").attrs["title"]                             # время публикации поста
+        date = article.find("time").attrs["title"]                      # время публикации поста
         date = convert_datetime_to_str(convert_str_to_datetime(date))
         title_obj = article.find("h2", {"class": "tm-title tm-title_h2"})
-        # if title_obj:
-        title = title_obj.get_text().strip()  # название поста
-        link = "https://habr.com" + title_obj.find("a").attrs["href"]  # ссылка на пост
+        title = title_obj.get_text().strip()                            # название поста
+        link = "https://habr.com" + title_obj.find("a").attrs["href"]   # ссылка на пост
         try:
             hubs = article.find("div", {"class": "tm-publication-hubs"}).stripped_strings
             hubs = [hub for hub in hubs if all(["*" not in hub, "Блог компании" not in hub])]
@@ -55,19 +58,23 @@ for num in range(1, num_pages+1):
             labels = [label for label in labels_obj if label]
         except (AttributeError, TypeError):
             labels = []
-        # else:
-        #     title_obj = article.find("h2", {"class": "tm-megapost-snippet__title"})
-        #     title = title_obj.get_text().strip()  # название поста
-        #     link = "https://habr.com" + article.find("a", {"class": "tm-megapost-snippet__link tm-megapost-snippet__card"}).attrs["href"]  # ссылка на пост
-        #     hubs_obj = article.find("div", {"class": "tm-publication-hubs"})
-        #     labels_obj = article.find("div", {"class": "tm-article-labels__container"})
-        ws.cell(row=row, column=1).style = "Hyperlink"
-        ws.cell(row=row, column=1).value = title
-        ws.cell(row=row, column=1).hyperlink = link
-        ws.cell(row=row, column=2, value=", ".join(hubs))
-        ws.cell(row=row, column=3, value=", ".join(labels))
-        ws.cell(row=row, column=4, value=date)
-        row +=1
+        if tags:
+            if set(hubs).intersection(set(tags)):
+                ws.cell(row=row, column=1).style = "Hyperlink"
+                ws.cell(row=row, column=1).value = title
+                ws.cell(row=row, column=1).hyperlink = link
+                ws.cell(row=row, column=2, value=", ".join(hubs))
+                ws.cell(row=row, column=3, value=", ".join(labels))
+                ws.cell(row=row, column=4, value=date)
+                row +=1
+        else:
+            ws.cell(row=row, column=1).style = "Hyperlink"
+            ws.cell(row=row, column=1).value = title
+            ws.cell(row=row, column=1).hyperlink = link
+            ws.cell(row=row, column=2, value=", ".join(hubs))
+            ws.cell(row=row, column=3, value=", ".join(labels))
+            ws.cell(row=row, column=4, value=date)
+            row +=1
 ws.column_dimensions["A"].width = 130
 ws.column_dimensions["B"].width = 112
 ws.column_dimensions["C"].width = 32
