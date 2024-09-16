@@ -41,26 +41,26 @@ for num in range(1, num_pages+1):
     for article in articles:
         date = article.find("time").attrs["title"]                             # время публикации поста
         date = convert_datetime_to_str(convert_str_to_datetime(date))
-        title_obj = article.find("h2", {"class": "tm-article-snippet__title tm-article-snippet__title_h2"})
-        if title_obj:
-            title = title_obj.find("span").get_text().strip()  # название поста
-            link = "https://habr.com" + title_obj.find("a").attrs["href"]  # ссылка на пост
-            hubs_obj = article.find("div", {"class": "tm-article-snippet__hubs"})
-            labels_obj = article.find("div", {"class": "tm-article-snippet__labels"})
-        else:
-            title_obj = article.find("h2", {"class": "tm-megapost-snippet__title"})
-            title = title_obj.get_text().strip()  # название поста
-            link = "https://habr.com" + article.find("a", {"class": "tm-megapost-snippet__link tm-megapost-snippet__card"}).attrs["href"]  # ссылка на пост
-            hubs_obj = article.find("ul", {"class": "tm-megapost-snippet__hubs"})
-            labels_obj = article.find("div", {"class": "tm-megapost-snippet__labels"})
+        title_obj = article.find("h2", {"class": "tm-title tm-title_h2"})
+        # if title_obj:
+        title = title_obj.get_text().strip()  # название поста
+        link = "https://habr.com" + title_obj.find("a").attrs["href"]  # ссылка на пост
         try:
-            hubs = [hub.get_text().strip().replace("*", "") for hub in hubs_obj if "Блог компании" not in hub.get_text()]
+            hubs = article.find("div", {"class": "tm-publication-hubs"}).stripped_strings
+            hubs = [hub for hub in hubs if all(["*" not in hub, "Блог компании" not in hub])]
         except AttributeError:
             hubs = []
         try:
-            labels = [label.get_text().strip() for label in labels_obj]
+            labels_obj = article.find("div", {"class": "tm-article-labels__container"}).stripped_strings
+            labels = [label for label in labels_obj if label]
         except (AttributeError, TypeError):
             labels = []
+        # else:
+        #     title_obj = article.find("h2", {"class": "tm-megapost-snippet__title"})
+        #     title = title_obj.get_text().strip()  # название поста
+        #     link = "https://habr.com" + article.find("a", {"class": "tm-megapost-snippet__link tm-megapost-snippet__card"}).attrs["href"]  # ссылка на пост
+        #     hubs_obj = article.find("div", {"class": "tm-publication-hubs"})
+        #     labels_obj = article.find("div", {"class": "tm-article-labels__container"})
         ws.cell(row=row, column=1).style = "Hyperlink"
         ws.cell(row=row, column=1).value = title
         ws.cell(row=row, column=1).hyperlink = link
